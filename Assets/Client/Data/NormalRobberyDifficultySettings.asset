@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50fdee7f70864a878fc16e717b62e0bb, type: 3}
+  m_Name: NormalRobberyDifficultySettings
+  m_EditorClassIdentifier: 
+  _difficulty: 1
+  _speed: 64.6
+  _successMin: 30
+  _successMax: 80
+  _failMin: 0.8
+  _failMax: 0.92
+  _rewardAmount: 250
+  _rewardColor: {r: 0, g: 1, b: 0, a: 1}
