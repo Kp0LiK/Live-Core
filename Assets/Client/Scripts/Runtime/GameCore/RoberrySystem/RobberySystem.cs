@@ -102,10 +102,12 @@ namespace Client
             {
                 OnGameSuccess?.Invoke();
                 _currentRound++;
+                SoundManager.Instance.PlayClick();
 
                 if (_currentRound >= _totalRounds)
                 {
                     _timing = false;
+                    SoundManager.Instance.PlayWin();
                     OnWinGame?.Invoke();
                 }
                 else
@@ -118,6 +120,7 @@ namespace Client
                 _fails++;
                 _view.UpdateAttemptsLeft(_maxFails - _fails);
                 OnGameFail?.Invoke();
+                SoundManager.Instance.LoseClick();
 
                 if (_fails >= _maxFails)
                 {
@@ -134,6 +137,7 @@ namespace Client
 
         public void LoseGame()
         {
+            SoundManager.Instance.PlayLose();
             OnLoseGame?.Invoke();
         }
 
