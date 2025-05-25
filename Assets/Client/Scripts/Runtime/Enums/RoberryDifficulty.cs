@@ -4,6 +4,7 @@ namespace Client
     {
         Easy,
         Normal,
-        Hard
+        Hard,
+        Immortal
     }
 }

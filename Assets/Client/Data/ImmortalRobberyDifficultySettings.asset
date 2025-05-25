@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50fdee7f70864a878fc16e717b62e0bb, type: 3}
+  m_Name: ImmortalRobberyDifficultySettings
+  m_EditorClassIdentifier: 
+  _difficulty: 3
+  _totalRounds: 6
+  _timeLimitSeconds: 8
+  _rewardAmount: 1500
+  _rewardColor: {r: 0, g: 1, b: 0, a: 1}
+  _baseSpeed: 220
+  _speedBoost: 50
+  _baseSuccessZoneSize: 35
+  _successZoneMinClamp: 8
