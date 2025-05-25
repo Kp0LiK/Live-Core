@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: HardRobberyDifficultySettings
   m_EditorClassIdentifier: 
   _difficulty: 2
-  _speed: 4
-  _successMin: 0.47
-  _successMax: 0.53
-  _failMin: 0.75
-  _failMax: 0.95
+  _totalRounds: 5
+  _timeLimitSeconds: 10
   _rewardAmount: 500
   _rewardColor: {r: 0, g: 1, b: 0, a: 1}
+  _baseSpeed: 150
+  _speedBoost: 50
+  _baseSuccessZoneSize: 40
+  _successZoneMinClamp: 10

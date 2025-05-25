@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: EasyRobberyDifficultySettings
   m_EditorClassIdentifier: 
   _difficulty: 0
-  _speed: 2
-  _successMin: 0.3
-  _successMax: 0.7
-  _failMin: 0.85
-  _failMax: 0.95
-  _rewardAmount: 100
+  _totalRounds: 3
+  _timeLimitSeconds: 20
+  _rewardAmount: 150
   _rewardColor: {r: 0, g: 1, b: 0, a: 1}
+  _baseSpeed: 50
+  _speedBoost: 15
+  _baseSuccessZoneSize: 65
+  _successZoneMinClamp: 25

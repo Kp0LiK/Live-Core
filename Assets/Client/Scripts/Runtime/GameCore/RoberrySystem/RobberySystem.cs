@@ -33,8 +33,6 @@ namespace Client
         private void Awake()
         {
             Instance = this;
-
-            StartGame(_baseSettings);
         }
 
         private void OnEnable()
