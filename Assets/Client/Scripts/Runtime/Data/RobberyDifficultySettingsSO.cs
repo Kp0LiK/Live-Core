@@ -8,36 +8,63 @@ namespace Client
         [Header("General")]
         [SerializeField] private RobberyDifficulty _difficulty;
         public RobberyDifficulty Difficulty => _difficulty;
+        
+        private float _speed = 2f;
+        private float _successMin = 0.45f;
+        private float _successMax = 0.55f;
+        private float _failMin = 0.7f;
+        private float _failMax = 0.9f;
 
-        [Header("Pointer Timing")]
-        [Tooltip("Speed of pointer rotation in degrees per second")]
-        [SerializeField] private float _speed = 2f;
-
-        [Tooltip("Minimum angle of success zone (degrees)")]
-        [SerializeField] private float _successMin = 0.45f;
-
-        [Tooltip("Maximum angle of success zone (degrees)")]
-        [SerializeField] private float _successMax = 0.55f;
-
-        [Tooltip("Minimum angle of fail zone (degrees)")]
-        [SerializeField] private float _failMin = 0.7f;
-
-        [Tooltip("Maximum angle of fail zone (degrees)")]
-        [SerializeField] private float _failMax = 0.9f;
+        [Header("Game Rules")]
+        [SerializeField] private int _totalRounds = 3;
+        [SerializeField] private float _timeLimitSeconds = 90f;
 
         [Header("Reward")]
         [SerializeField] private int _rewardAmount = 100;
-
-        [Tooltip("Optional color of reward UI / particles")]
         [SerializeField] private Color _rewardColor = Color.green;
 
-        public float Speed => _speed;
-        public float SuccessMin => _successMin;
+        [Header("Dynamic Scaling")]
+        [SerializeField] private float _baseSpeed = 50f;
+        [SerializeField] private float _speedBoost = 15f;
+        [SerializeField] private float _baseSuccessZoneSize = 45f;
+        [SerializeField] private float _successZoneMinClamp = 15f;
 
-        public float SuccessMax => _successMax;
+        // Public accessors
+        public float Speed
+        {
+            get => _speed;
+            set => _speed = value;
+        }
+
+        public float SuccessMin
+        {
+            get => _successMin;
+            set => _successMin = value;
+        }
+
+        public float SuccessMax
+        {
+            get => _successMax;
+            set => _successMax = value;
+        }
+
         public float FailMin => _failMin;
         public float FailMax => _failMax;
-        public int RewardAmount => _rewardAmount;
+
+        public int TotalRounds => _totalRounds;
+        public float TimeLimitSeconds => _timeLimitSeconds;
+
+        public int RewardAmount
+        {
+            get => _rewardAmount;
+            set => _rewardAmount = value;
+        }
+
         public Color RewardColor => _rewardColor;
+
+        public float BaseSpeed => _baseSpeed;
+        public float SpeedBoost => _speedBoost;
+        public float BaseSuccessZoneSize => _baseSuccessZoneSize;
+        public float SuccessZoneMinClamp => _successZoneMinClamp;
     }
 }

@@ -8,34 +8,61 @@ namespace Client
 {
     public class RobberyWindowView : MonoBehaviour
     {
-        [Header("UI Elements")]
-        [SerializeField] private RectTransform _pointerTransform;
+        [Header("UI Elements")] [SerializeField]
+        private RectTransform _pointerTransform;
+
         [SerializeField] private GameObject _windowRoot;
         [SerializeField] private Button _crackButton;
         [SerializeField] private TextMeshProUGUI _rewardText;
-        
+
         [SerializeField] private Image _successZoneImage;
         [SerializeField] private Image _failZoneImage;
         [SerializeField] private RectTransform _dialRoot;
+
+        [Header("UI Game")] [SerializeField] private TextMeshProUGUI _timerText;
+        [SerializeField] private TextMeshProUGUI _roundText;
+        [SerializeField] private TextMeshProUGUI _yourChanceText;
+        [SerializeField] private Slider _timerSlider;
+        [SerializeField] private Color _startColor;
+        [SerializeField] private Color _warningColor;
+        [SerializeField] private Color _criticalColor;
 
 
         private RobberyDifficultySettingsSO _settings;
         private float _currentAngle;
         private bool _isPlaying;
-        
+
+        private float _timeRemaining;
+        private bool _timerRunning;
+
         private float _currentWinMinAngle;
         private float _currentWinMaxAngle;
 
         public float CurrentWinMinAngle => _currentWinMinAngle;
         public float CurrentWinMaxAngle => _currentWinMaxAngle;
 
+        private Image _timerFillImage;
+        private float _initialTime;
+        private float _pulseSpeed = 4f;
 
         public event Action<float> OnCrackPressed;
 
-        public void Init(RobberyDifficultySettingsSO settings)
+        public void Init(RobberyDifficultySettingsSO settings, float timer, int currentRound, int totalRounds,
+            int attemptsLeft)
         {
             _settings = settings;
-            _rewardText.text = $"+{settings.RewardAmount}";
+
+            _rewardText.text = $"Win and get +{settings.RewardAmount}$";
+            _roundText.text = $"Round {currentRound}/{totalRounds}";
+            _yourChanceText.text = $"Attempts: {attemptsLeft}";
+
+            _timeRemaining = timer;
+            _timerRunning = true;
+
+            _timerSlider.maxValue = _timeRemaining;
+            _timerSlider.value = _timeRemaining;
+            _timerFillImage = _timerSlider.fillRect.GetComponent<Image>();
+            _initialTime = _timeRemaining;
 
             Show(true);
             ResetPointer();
@@ -65,20 +92,58 @@ namespace Client
             _currentAngle += _settings.Speed * Time.deltaTime;
             _currentAngle %= 360f;
 
+            if (_timerRunning)
+            {
+                _timeRemaining -= Time.deltaTime;
+                _timeRemaining = Mathf.Max(0f, _timeRemaining);
+
+                _timerText.text = Mathf.CeilToInt(_timeRemaining).ToString();
+
+                float t = _timeRemaining;
+
+                _timerSlider.value = t;
+
+                if (_timerFillImage != null)
+                {
+                    float progress = _timeRemaining / _initialTime;
+
+                    if (progress > 0.3f)
+                    {
+                        _timerFillImage.color = Color.Lerp(_warningColor, _startColor, (progress - 0.5f) * 2f);
+                    }
+                    else
+                    {
+                        float pulse = Mathf.PingPong(Time.time * _pulseSpeed, 1f);
+                        _timerFillImage.color = Color.Lerp(_warningColor, _criticalColor, pulse);
+                    }
+                }
+
+
+                if (_timeRemaining <= 0f)
+                {
+                    _timerRunning = false;
+                    RobberySystem.Instance.LoseGame();
+                }
+            }
+
             if (_pointerTransform != null)
                 _pointerTransform.rotation = Quaternion.Euler(0f, 0f, -_currentAngle);
-            
+
             if (Input.GetKeyDown(KeyCode.Space))
                 HandleCrackPressed();
         }
 
+        public void UpdateAttemptsLeft(int attemptsLeft)
+        {
+            _yourChanceText.text = $"Attempts: {attemptsLeft}";
+        }
 
         public void StartMiniGame()
         {
             _isPlaying = true;
             ResetPointer();
         }
-        
+
         private void SetupZones()
         {
             SetupFailZoneFull();
@@ -114,6 +179,11 @@ namespace Client
         }
 
 
+        public void Stop()
+        {
+            _isPlaying = false;
+            _timerRunning = false;
+        }
 
         private void ResetPointer()
         {

@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: NormalRobberyDifficultySettings
   m_EditorClassIdentifier: 
   _difficulty: 1
-  _speed: 64.6
-  _successMin: 30
-  _successMax: 80
-  _failMin: 0.8
-  _failMax: 0.92
+  _totalRounds: 3
+  _timeLimitSeconds: 15
   _rewardAmount: 250
   _rewardColor: {r: 0, g: 1, b: 0, a: 1}
+  _baseSpeed: 70
+  _speedBoost: 20
+  _baseSuccessZoneSize: 45
+  _successZoneMinClamp: 15

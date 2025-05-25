@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,26 +7,34 @@ namespace Client
     {
         public static RobberySystem Instance;
 
-        [Header("References")] [SerializeField]
-        private RobberyGame _game;
-
+        [Header("References")]
+        [SerializeField] private RobberyGame _game;
         [SerializeField] private RobberyWindowView _view;
 
-        [Header("Difficulties")] [SerializeField]
-        private List<RobberyDifficultySettingsSO> _difficultySettings;
+        [Header("Difficulty Preset")]
+        [SerializeField] private RobberyDifficultySettingsSO _baseSettings;
+        
+        private int _fails = 0;
+        [SerializeField] private int _maxFails = 2;
 
         public event UnityAction OnGameStart;
         public event UnityAction OnGameSuccess;
         public event UnityAction OnGameFail;
+        public event UnityAction OnWinGame;
+        public event UnityAction OnLoseGame;
 
-        public RobberyDifficulty CurrentDifficulty { get; private set; } = RobberyDifficulty.Normal;
+        private int _currentRound = 0;
+        private int _totalRounds;
+        private float _timer;
+        private bool _timing;
 
-        private RobberyDifficultySettingsSO _activeSettings;
+        public int MaxFails => _maxFails;
 
         private void Awake()
         {
             Instance = this;
-            StartGame();
+
+            StartGame(_baseSettings);
         }
 
         private void OnEnable()
@@ -40,25 +47,45 @@ namespace Client
             _view.OnCrackPressed -= HandleCrack;
         }
 
-        public void SetDifficulty(RobberyDifficulty difficulty)
+        public void StartGame(RobberyDifficultySettingsSO settings)
         {
-            CurrentDifficulty = difficulty;
-            _activeSettings = _difficultySettings.Find(x => x.Difficulty == difficulty);
+            _baseSettings = settings;
+                
+            _currentRound = 0;
+            _fails = 0;
+            _totalRounds = _baseSettings.TotalRounds;
+            _timer = _baseSettings.TimeLimitSeconds;
+            _timing = true;
 
-            if (_activeSettings == null)
-                Debug.LogWarning($"[RobberySystem] Difficulty {difficulty} not found!");
+            StartRound(_currentRound);
+            OnGameStart?.Invoke();
         }
 
-        public void StartGame()
+
+        private void StartRound(int round)
         {
-            if (_activeSettings == null)
-                SetDifficulty(CurrentDifficulty);
-
-            _game.SetDifficulty(_activeSettings);
-            _view.Init(_activeSettings);
-
+            var runtimeSettings = GenerateRuntimeSettings(round);
+            _game.SetDifficulty(runtimeSettings);
+            _view.Init(runtimeSettings, _timer, round + 1, _totalRounds, _maxFails - _fails);
             _view.StartMiniGame();
-            OnGameStart?.Invoke();
+        }
+
+        private RobberyDifficultySettingsSO GenerateRuntimeSettings(int round)
+        {
+            var settings = ScriptableObject.CreateInstance<RobberyDifficultySettingsSO>();
+
+            float progress = Mathf.Clamp01((float)round / (_baseSettings.TotalRounds - 1));
+            
+            settings.Speed = _baseSettings.BaseSpeed + round * _baseSettings.SpeedBoost;
+            Debug.Log($"[RobberySystem] Current speed is {settings.Speed}");
+
+            float zoneSize = Mathf.Lerp(_baseSettings.BaseSuccessZoneSize, _baseSettings.SuccessZoneMinClamp, progress);
+            float center = Random.Range(0f, 360f);
+            settings.SuccessMin = center - zoneSize / 2f;
+            settings.SuccessMax = center + zoneSize / 2f;
+            settings.RewardAmount = _baseSettings.RewardAmount;
+
+            return settings;
         }
 
         private void HandleCrack(float angle)
@@ -69,13 +96,45 @@ namespace Client
 
             bool success = IsAngleInRange(pointerAngle, min, max);
 
-            Debug.Log(
-                $"[RobberySystem] Angle: {angle:0.0}° — Win Zone: {min:0.0}° to {max:0.0}° → Result: {(success ? "SUCCESS" : "FAIL")}");
+            Debug.Log($"[RobberySystem] Angle: {angle:0.0}° — Win Zone: {min:0.0}° to {max:0.0}° → Result: {(success ? "SUCCESS" : "FAIL")}");
 
             if (success)
+            {
                 OnGameSuccess?.Invoke();
+                _currentRound++;
+
+                if (_currentRound >= _totalRounds)
+                {
+                    _timing = false;
+                    OnWinGame?.Invoke();
+                }
+                else
+                {
+                    StartRound(_currentRound);
+                }
+            }
             else
+            {
+                _fails++;
+                _view.UpdateAttemptsLeft(_maxFails - _fails);
                 OnGameFail?.Invoke();
+
+                if (_fails >= _maxFails)
+                {
+                    _timing = false;
+                    LoseGame();
+                }
+                else
+                {
+                    StartRound(_currentRound);
+                }
+            }
+        }
+
+
+        public void LoseGame()
+        {
+            OnLoseGame?.Invoke();
         }
 
         private bool IsAngleInRange(float angle, float min, float max)
@@ -84,10 +143,9 @@ namespace Client
             min = Mathf.Repeat(min, 360f);
             max = Mathf.Repeat(max, 360f);
 
-            if (min < max)
-                return angle >= min && angle <= max;
-            else
-                return angle >= min || angle <= max;
+            return min < max
+                ? angle >= min && angle <= max
+                : angle >= min || angle <= max;
         }
     }
 }
