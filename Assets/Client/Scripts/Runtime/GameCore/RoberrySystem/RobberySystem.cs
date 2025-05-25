@@ -1,3 +1,4 @@
+using StarterAssets;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,6 +11,7 @@ namespace Client
         [Header("References")]
         [SerializeField] private RobberyGame _game;
         [SerializeField] private RobberyWindowView _view;
+        [SerializeField] private ThirdPersonController _controller;
 
         [Header("Difficulty Preset")]
         [SerializeField] private RobberyDifficultySettingsSO _baseSettings;
@@ -29,6 +31,8 @@ namespace Client
         private bool _timing;
 
         public int MaxFails => _maxFails;
+
+        public RobberyDifficultySettingsSO BaseSettings => _baseSettings;
 
         private void Awake()
         {
@@ -54,9 +58,10 @@ namespace Client
             _totalRounds = _baseSettings.TotalRounds;
             _timer = _baseSettings.TimeLimitSeconds;
             _timing = true;
-
+            _controller.enabled = false;
             StartRound(_currentRound);
             OnGameStart?.Invoke();
+            WindowsManager.Instance.CloseAlLWindows();
         }
 
 
@@ -105,6 +110,8 @@ namespace Client
                 if (_currentRound >= _totalRounds)
                 {
                     _timing = false;
+                    _controller.enabled = true;
+                    WindowsManager.Instance.OpenWindow<WinWindowView>();
                     SoundManager.Instance.PlayWin();
                     OnWinGame?.Invoke();
                 }
@@ -136,7 +143,9 @@ namespace Client
         public void LoseGame()
         {
             SoundManager.Instance.PlayLose();
+            _controller.enabled = true;
             OnLoseGame?.Invoke();
+            WindowsManager.Instance.OpenWindow<LoseWindowView>();
         }
 
         private bool IsAngleInRange(float angle, float min, float max)
