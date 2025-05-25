@@ -12,7 +12,6 @@ namespace Client
         private RectTransform _pointerTransform;
 
         [SerializeField] private GameObject _windowRoot;
-        [SerializeField] private Button _crackButton;
         [SerializeField] private TextMeshProUGUI _rewardText;
 
         [SerializeField] private Image _successZoneImage;
@@ -72,16 +71,6 @@ namespace Client
         public void Show(bool show)
         {
             _windowRoot.SetActive(show);
-        }
-
-        private void OnEnable()
-        {
-            _crackButton.onClick.AddListener(HandleCrackPressed);
-        }
-
-        private void OnDisable()
-        {
-            _crackButton.onClick.RemoveListener(HandleCrackPressed);
         }
 
         private void Update()
